@@ -3,6 +3,7 @@ using Bogus;
 
 using CursoOnline.Dominio.Cursos;
 using CursoOnline.Dominio.Cursos.Enums;
+using CursoOnline.DominioTest._Builders;
 using CursoOnline.DominioTest._Utils;
 
 using Moq;
@@ -44,8 +45,8 @@ namespace CursoOnline.DominioTest.Cursos
                     c.CargaHoraria == _cursoDto.CargaHoraria &&
                     c.PublicoAlvo == PublicoAlvo.Estudante &&
                     c.Valor == _cursoDto.Valor
-                )
-                ));
+                ))
+            );
         }
 
         [Fact]
@@ -55,11 +56,21 @@ namespace CursoOnline.DominioTest.Cursos
             _cursoDto.PublicoAlvo = publicoAlvoInvalido;
             Assert.Throws<ArgumentException>(() => _armazenadorDeCurso.Armazenar(_cursoDto)).ComMensagem("Publico alvo inválido");
         }
+
+        [Fact]
+        public void NaoDeveAdicionarCursoComMesmoNomeDeOutroJaSalvo()
+        {
+            var cursojaSalvo = CursoBuilder.Novo().ComNome(_cursoDto.Nome).Build();
+            _cursoRepositorioMock.Setup(c => c.ObterPeloNome(_cursoDto.Nome)).Returns(cursojaSalvo);
+            Assert.Throws<ArgumentException>(() => _armazenadorDeCurso.Armazenar(_cursoDto)).ComMensagem("Nome do curso já consta no banco de dados");
+        }
+
     }
 
     public interface ICursoRepositorio
     {
         void Adicionar(Curso curso);
+        Curso ObterPeloNome(string nome);
     }
 
     public class ArmazenadorDeCurso
@@ -73,6 +84,13 @@ namespace CursoOnline.DominioTest.Cursos
 
         internal void Armazenar(CursoDto cursoDto)
         {
+            var cursoJaSalvo = _cursoRepositorio.ObterPeloNome(cursoDto.Nome);
+
+            if (cursoJaSalvo != null)
+            {
+                throw new ArgumentException("Nome do curso já consta no banco de dados");
+            }
+
             Enum.TryParse(typeof(PublicoAlvo), cursoDto.PublicoAlvo, out var publicoAlvo);
 
             if (publicoAlvo == null)
@@ -86,7 +104,7 @@ namespace CursoOnline.DominioTest.Cursos
     }
 
     public class CursoDto
-    {     
+    {
 
         public string Nome { get; set; }
         public string Descricao { get; set; }
