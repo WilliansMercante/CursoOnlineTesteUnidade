@@ -1,4 +1,5 @@
-﻿using CursoOnline.DominioTest.Cursos;
+﻿using CursoOnline.Dominio.Cursos;
+using CursoOnline.Dominio.Cursos.Enums;
 
 namespace CursoOnline.DominioTest._Builders
 {
@@ -10,10 +11,8 @@ namespace CursoOnline.DominioTest._Builders
         private double _valor = 950;
         private string _descricao = "Curso de informática";
 
-        public static CursoBuilder Novo()
-        {
-            return new CursoBuilder();
-        }
+        public static CursoBuilder Novo() => new CursoBuilder();
+
 
         public CursoBuilder ComNome(string nome)
         {
@@ -44,10 +43,8 @@ namespace CursoOnline.DominioTest._Builders
             return this;
         }
 
-        public Curso Build()
-        {
-            return new Curso(_nome, _cargaHoraria, _publicoAlvo, _valor, _descricao);
-        }
-
+        public Curso Build() => new Curso(_nome, _cargaHoraria, _publicoAlvo, _valor, _descricao);
     }
+
+
 }

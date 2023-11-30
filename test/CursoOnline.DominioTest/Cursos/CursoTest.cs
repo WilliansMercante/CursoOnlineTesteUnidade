@@ -1,4 +1,8 @@
-﻿using CursoOnline.DominioTest._Builders;
+﻿using Bogus;
+
+using CursoOnline.Dominio.Cursos;
+using CursoOnline.Dominio.Cursos.Enums;
+using CursoOnline.DominioTest._Builders;
 using CursoOnline.DominioTest._Utils;
 
 using ExpectedObjects;
@@ -7,7 +11,6 @@ using Xunit.Abstractions;
 
 namespace CursoOnline.DominioTest.Cursos
 {
-
     public class CursoTest : IDisposable
     {
         private readonly ITestOutputHelper _output;
@@ -22,11 +25,14 @@ namespace CursoOnline.DominioTest.Cursos
             _output = output;
             _output.WriteLine("Construtor sendo executado");
 
-            _nome = "Informática Básica";
-            _cargaHoraria = 80;
+            var faker = new Faker();
+
+            _nome = faker.Name.FullName();
+            _cargaHoraria = faker.Random.Double(50, 1000);
             _publicoAlvo = PublicoAlvo.Estudante;
-            _valor = 950;
-            _descricao = "Curso de informática";
+            _valor = faker.Random.Double(10, 1000);
+            _descricao = faker.Lorem.Paragraph();
+
         }
 
         public void Dispose()
@@ -82,47 +88,5 @@ namespace CursoOnline.DominioTest.Cursos
                 CursoBuilder.Novo().ComValor(ValorInvalido).Build()).ComMensagem("Valor inválido");
 
         }
-    }
-
-    public enum PublicoAlvo
-    {
-        Estudante,
-        Universitario,
-        Empregado,
-        Empreendedor
-    }
-
-    public class Curso
-    {
-        public Curso(string nome, double cargaHoraria, PublicoAlvo publicoAlvo, double valor, string descricao)
-        {
-            if (string.IsNullOrEmpty(nome))
-            {
-                throw new ArgumentException("Nome inválido");
-            }
-
-            if (cargaHoraria < 1)
-            {
-                throw new ArgumentException("Carga horária inválida");
-            }
-
-            if (valor < 1)
-            {
-                throw new ArgumentException("Valor inválido");
-            }
-
-            Nome = nome;
-            CargaHoraria = cargaHoraria;
-            PublicoAlvo = publicoAlvo;
-            Valor = valor;
-            Descricao = descricao;
-        }
-
-        public string Nome { get; private set; }
-        public double CargaHoraria { get; private set; }
-        public PublicoAlvo PublicoAlvo { get; private set; }
-        public double Valor { get; private set; }
-        public string Descricao { get; private set; }
-
     }
 }
